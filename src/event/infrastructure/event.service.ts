@@ -1,5 +1,4 @@
 import { Inject, Injectable } from "@nestjs/common";
-import internal from "stream";
 import { EventRepository } from "./event.repository";
 import { EventRepositoryInterface } from "../domain/event-repository.interface";
 import { EventModel } from "../domain/event.model";

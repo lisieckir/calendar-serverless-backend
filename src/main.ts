@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import serverlessExpress from '@vendia/serverless-express';
 import { Callback, Context, Handler } from 'aws-lambda';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 let server: Handler;
 
@@ -10,6 +11,7 @@ async function bootstrap(): Promise<Handler> {
   await app.init();
 
   const expressApp = app.getHttpAdapter().getInstance();
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true, forbidUnknownValues: true, }));
   return serverlessExpress({ app: expressApp });
 }
 
