@@ -1,0 +1,52 @@
+service: serverless-calendar
+
+plugins:
+  - serverless-dynamodb
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  environment:
+    EVENT_TABLE:
+      Ref: 'events'
+
+resources:
+  Resources:
+      events:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: 'events'
+          AttributeDefinitions:
+            - AttributeName: date_start
+              AttributeType: S
+          KeySchema:
+            - AttributeName: date_start
+              KeyType: HASH
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+
+functions:
+  main:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
+
+custom:
+  serverless-dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    start:
+      docker: true
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+      convertEmptyValues: true
