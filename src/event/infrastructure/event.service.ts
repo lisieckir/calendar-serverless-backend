@@ -17,7 +17,7 @@ export class EventService {
         return matrix;
     }
 
-    public createEvent(event: EventModel)
+    public async createEvent(event: EventModel)
     {
         this.eventRepository.createEvent(event);
     }

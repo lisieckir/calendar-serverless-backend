@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Put } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Inject, Put } from "@nestjs/common";
 import { EventService } from "./event.service";
 import { v4 as uuidv4 } from 'uuid';
 import { CreateEventDto } from "../application/create-event.dto";
@@ -12,17 +12,15 @@ export class EventController {
 
     @Get('/')
     public getCurrentMonth() {
-        return this.eventService.findEvents(9,2023);
+        const now = new Date();
+        return this.eventService.findEvents(now.getMonth(),now.getFullYear());
     }
 
     
     @Put('/')
-    public addEvent(@Body() createEventDto: CreateEventDto) {
-        console.log(createEventDto);
-        console.log(createEventDto.date_start instanceof Date);
-
-        return createEventDto;
-        return this.eventService.createEvent({
+    @HttpCode(201)
+    public async addEvent(@Body() createEventDto: CreateEventDto): Promise<void> {
+        await this.eventService.createEvent({
             uid: uuidv4(),
             title: createEventDto.title,
             datetime_start: createEventDto.date_start,
