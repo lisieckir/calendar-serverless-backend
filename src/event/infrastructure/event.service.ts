@@ -10,9 +10,9 @@ export class EventService {
       private eventRepository: EventRepositoryInterface
     ) {}
 
-    public findEvents(month: number, year: number)
+    public findEvents(firstDay: Date, lastDay: Date)
     {
-        const matrix = this.eventRepository.findEvents(month);
+        const matrix = this.eventRepository.findEvents(firstDay, lastDay);
 
         return matrix;
     }

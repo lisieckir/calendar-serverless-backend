@@ -13,29 +13,25 @@ export class EventRepository implements EventRepositoryInterface {
         this.provider = new DynamodbProvider();
     }
 
-    public async findEvents(month: number): Promise<EventModel[]>
+    public async findEvents(firstDay: Date, lastDay: Date): Promise<EventModel[]>
     {
         const client = this.provider.connect();
-
-        const response = await client.send(new QueryCommand(
+        const response = await client.send(new ScanCommand(
             {
                 ExpressionAttributeValues: {
-                    ':s': {S: DynamoTypes.CALENDAR_EVENT},
-                    ':d': {S: "2023-09-01T00:48:11+0000"}
+                    ':ds': {S: firstDay.toISOString()},
+                    ':de': {S: lastDay.toISOString()},
                 },
                 TableName: 'events',
                 Limit: 20,
                 IndexName: 'date_start_index',
                 Select: 'ALL_ATTRIBUTES',
-                KeyConditionExpression: 'event_type = :s',
-                
-                // IndexName: 'date_start'
+                FilterExpression: "date_start>=:ds AND date_stop<=:de"
             }
         ))
-console.log(response);
+
         let itemsArray = [];
         response.Items.forEach((element: Record<string, AttributeValue>) => {
-            console.log(element.id.S);
             itemsArray.push(new EventModel(element.id.S, element.title.S, new Date(element.date_start.S), new Date(element.date_stop.S)))
         } );
 
@@ -50,7 +46,7 @@ console.log(response);
             {
                 TableName: 'events',
                 Item: {
-                    'type' : {S: DynamoTypes.CALENDAR_EVENT },
+                    'record_type' : {S: DynamoTypes.CALENDAR_EVENT },
                     'id' : {S: event.uid},
                     'title' : {S: event.title},
                     'date_start' : {S: event.datetime_start.toISOString()},
