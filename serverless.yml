@@ -20,12 +20,14 @@ resources:
           AttributeDefinitions:
             - AttributeName: record_type
               AttributeType: S
+            - AttributeName: id
+              AttributeType: S
             - AttributeName: date_start
               AttributeType: S
           KeySchema:
-            - AttributeName: record_type
+            - AttributeName: id
               KeyType: HASH
-            - AttributeName: date_start
+            - AttributeName: record_type
               KeyType: RANGE
           ProvisionedThroughput:
             ReadCapacityUnits: 1

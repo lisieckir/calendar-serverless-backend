@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { EventModel } from "../domain/event.model";
 import { EventRepositoryInterface } from "../domain/event-repository.interface";
 import { DynamodbProvider } from "src/ dynamodb/dynamodb.provider";
-import { AttributeValue, PutItemCommand, QueryCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
+import { AttributeValue, DeleteItemCommand, PutItemCommand, QueryCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { DynamoTypes } from "src/ dynamodb/dynamodb-types.enum";
 
 @Injectable()
@@ -54,5 +54,16 @@ export class EventRepository implements EventRepositoryInterface {
                 }
             }
         ));
+    }
+
+    public async deleteEvent(uid: string): Promise<void> {
+        const client = this.provider.connect();
+
+        await client.send(new DeleteItemCommand(
+            {
+                TableName: 'events',
+                Key: { 'id': {S: uid}, 'record_type': {S: DynamoTypes.CALENDAR_EVENT } }
+            }
+        ))
     }
 }

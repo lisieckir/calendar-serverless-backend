@@ -10,15 +10,20 @@ export class EventService {
       private eventRepository: EventRepositoryInterface
     ) {}
 
-    public findEvents(firstDay: Date, lastDay: Date)
+    public findEvents(firstDay: Date, lastDay: Date): Promise<EventModel[]>
     {
         const matrix = this.eventRepository.findEvents(firstDay, lastDay);
 
         return matrix;
     }
 
-    public async createEvent(event: EventModel)
+    public async createEvent(event: EventModel): Promise<void>
     {
         this.eventRepository.createEvent(event);
+    }
+
+    public async removeEvent(uid: string): Promise<void>
+    {
+       await this.eventRepository.deleteEvent(uid);
     }
 }
