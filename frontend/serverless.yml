@@ -1,0 +1,55 @@
+service: my-frontend-app
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: eu-west-1
+  environment:
+    REACT_APP_APIGATEWAY_URL: "http://localhost:3000/dev/"
+
+
+plugins:
+  - serverless-finch # Plugin do zarządzania CloudFront
+  - serverless-s3-sync
+
+custom:
+  # distributionFolder: build # Katalog, w którym znajduje się kod źródłowy React.js
+  bucketName: calendar-frontend-rafal # Nazwa kubełka S3, w którym zostanie umieszczony kod
+	
+  s3Sync:
+    # A simple configuration for copying static assets
+    - bucketName: ${self:custom.bucketName} # required
+      localDir: build # required
+
+
+resources:
+  Resources:
+    MyS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.bucketName}
+              
+    MyCloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Origins:
+            - DomainName: ${self:custom.bucketName}.s3.amazonaws.com
+              Id: S3Origin
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: https-only
+          Enabled: true
+          DefaultRootObject: index.html
+          DefaultCacheBehavior:
+            AllowedMethods:
+              - GET
+              - HEAD
+            TargetOriginId: S3Origin
+            ForwardedValues:
+              QueryString: "false"
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
+          # Aliases: # Tu możesz dodać niestandardowe aliasy CloudFront (jeśli są potrzebne)
+          #   - my-frontend-domain.com

@@ -12,7 +12,7 @@ function App() {
   const [events, setEvents] = useState([]);
 
   const fetchEvents = (start, stop) => {
-    fetch(process.env.REACT_APP_API_URL+'events?start='+start+'&stop='+stop)
+    fetch(process.env.REACT_APP_APIGATEWAY_URL+'events?start='+start+'&stop='+stop)
     .then((res) => res.json())
     .then( (data) => {
      setEvents(prepareDates(data))
